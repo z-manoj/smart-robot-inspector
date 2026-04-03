@@ -1,0 +1,89 @@
+# Gazebo Simulation Parameters
+
+gazebo:
+  # World configuration
+  world_file: warehouse.world
+  physics_engine: ode
+  max_step_size: 0.001
+  real_time_factor: 1.0
+
+  # Robot spawn configuration
+  robot_spawn:
+    x: 0.0
+    y: 0.0
+    z: 0.1
+    yaw: 0.0
+
+  # Inspection waypoints (in warehouse frame)
+  inspection_waypoints:
+    - waypoint_id: 1
+      name: "Shelf 1"
+      x: 2.0
+      y: -1.0
+      z: 0.0
+      yaw: 0.0
+      description: "Inspect first shelf"
+
+    - waypoint_id: 2
+      name: "Shelf 2"
+      x: 2.0
+      y: 1.25
+      z: 0.0
+      yaw: 0.0
+      description: "Inspect second shelf with damage"
+
+    - waypoint_id: 3
+      name: "Shelf 3"
+      x: 2.0
+      y: 3.5
+      z: 0.0
+      yaw: 0.0
+      description: "Inspect third shelf"
+
+  # Camera configuration
+  camera:
+    width: 320
+    height: 240
+    fov: 60  # degrees
+    frame_rate: 30  # Hz
+    near_clip: 0.1
+    far_clip: 100.0
+
+  # Robot configuration
+  robot:
+    wheel_separation: 0.36  # meters
+    wheel_diameter: 0.1     # meters
+    max_linear_velocity: 0.5  # m/s
+    max_angular_velocity: 1.0  # rad/s
+
+# ROS2 Bridge configuration
+ros2_bridge:
+  topics:
+    - "/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image"
+    - "/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist"
+    - "/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V"
+    - "/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry"
+
+# Inspector node configuration (Gazebo-specific)
+inspector_node:
+  bedrock_region: us-east-1
+  model_id: us.anthropic.claude-opus-4-6-v1
+  image_topic: /camera/image_raw
+  analysis_topic: /robot_inspector/analysis
+  report_output_dir: ./gazebo_reports
+  inspection_interval_ms: 2000
+  max_queue_size: 10
+  confidence_threshold: 0.70
+  enable_visualization: true
+
+# Demo script configuration
+demo:
+  autonomous_mode: true
+  inspection_duration_per_waypoint: 5  # seconds
+  movement_speed: 0.3  # m/s
+  capture_interval: 1.0  # seconds
+  generate_report: true
+  report_format:
+    - json
+    - markdown
+    - html
