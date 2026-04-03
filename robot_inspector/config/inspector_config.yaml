@@ -1,0 +1,53 @@
+# Smart Robot Inspector - ROS2 Configuration
+# Modify these parameters to customize inspector behavior
+
+robot_inspector:
+  # AWS Bedrock Configuration
+  bedrock_region: us-east-1
+  model_id: us.anthropic.claude-opus-4-6-v1
+
+  # ROS2 Topic Configuration
+  image_topic: /camera/image_raw        # Input camera topic
+  analysis_topic: /robot_inspector/analysis  # Output analysis topic
+
+  # Output Configuration
+  report_output_dir: ./reports          # Directory for generated reports
+
+  # Processing Configuration
+  inspection_interval_ms: 1000          # Milliseconds between inspections
+  max_queue_size: 10                    # Maximum buffered images
+  confidence_threshold: 0.70            # Minimum confidence to publish results
+
+  # Features
+  enable_visualization: true            # Generate reports and visualizations
+
+# Example configurations for different scenarios:
+
+# --- Scenario 1: Fast Processing (Real-time, Lower Quality) ---
+# robot_inspector:
+#   inspection_interval_ms: 100         # 10 Hz processing
+#   max_queue_size: 5
+#   confidence_threshold: 0.50
+
+# --- Scenario 2: Careful Analysis (Slower, High Quality) ---
+# robot_inspector:
+#   inspection_interval_ms: 3000        # ~0.3 Hz processing
+#   max_queue_size: 20
+#   confidence_threshold: 0.85
+
+# --- Scenario 3: Development (Output Verbose) ---
+# robot_inspector:
+#   inspection_interval_ms: 2000
+#   max_queue_size: 10
+#   confidence_threshold: 0.70
+#   enable_visualization: true
+
+# --- Scenario 4: Different AWS Region ---
+# robot_inspector:
+#   bedrock_region: us-west-2
+#   model_id: us.anthropic.claude-opus-4-6-v1
+
+# --- Scenario 5: Custom Topics ---
+# robot_inspector:
+#   image_topic: /my_robot/camera/image
+#   analysis_topic: /my_robot/quality_control/results
