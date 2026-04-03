@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inspection Report: demo_2026_04_03_001</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; border-bottom: 3px solid #0066cc; padding-bottom: 10px; }
+        h2 { color: #0066cc; margin-top: 30px; }
+        .status-PASS { color: green; font-weight: bold; }
+        .status-FAIL { color: red; font-weight: bold; }
+        .status-REVIEW_REQUIRED { color: orange; font-weight: bold; }
+        .issue-CRITICAL { background: #ffe0e0; padding: 10px; margin: 10px 0; border-left: 4px solid red; }
+        .issue-HIGH { background: #fff4e0; padding: 10px; margin: 10px 0; border-left: 4px solid orange; }
+        .issue-MEDIUM { background: #fffde0; padding: 10px; margin: 10px 0; border-left: 4px solid #ffcc00; }
+        .issue-LOW { background: #e0f0ff; padding: 10px; margin: 10px 0; border-left: 4px solid #0066cc; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #0066cc; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .summary-box { background: #f0f8ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inspection Report: demo_2026_04_03_001</h1>
+        <p><strong>Generated</strong>: 2026-04-03T18:24:12.169613</p>
+        <p><strong>Duration</strong>: 2026-04-03T18:24:12.169572 to 2026-04-03T18:24:12.169600</p>
+
+        <div class="summary-box">
+            <h2>Summary</h2>
+            <p><strong>Overall Status</strong>: <span class="status-FAIL">FAIL</span></p>
+            <table>
+                <tr>
+                    <td>Inspection Points</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Total Issues</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>Points Passed</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>Points Failed</td>
+                    <td>2</td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>Issue Breakdown</h2>
+        <table>
+            <tr>
+                <th>Severity</th>
+                <th>Count</th>
+            </tr>
+            <tr>
+                <td>Critical</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>High</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Medium</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Low</td>
+                <td>1</td>
+            </tr>
+        </table>
+<h2>Critical Findings</h2>
+        <div class="issue-CRITICAL">
+            <strong>Structural crack detected on manufactured part PART-12345</strong><br>
+            Location: Lower-left quadrant of the elliptical part, running diagonally from approximately the center-left to the lower-center region<br>
+            Recommendation: Immediately reject this part. Do not allow it to proceed to assembly or shipment. Quarantine the part for root cause analysis. Inspect the entire batch from the same production run for similar cracking defects. Investigate potential causes including material fatigue, tooling wear, thermal stress, or process parameter deviations.
+        </div>
+
+        <div class="issue-CRITICAL">
+            <strong>QC system has automatically flagged part as REJECT</strong><br>
+            Location: Bottom-right corner - QC status indicator<br>
+            Recommendation: Confirm and document the automated rejection in the quality management system. Ensure the part is physically segregated and tagged as non-conforming. Generate a Non-Conformance Report (NCR) and initiate corrective action procedures.
+        </div>
+
+    </div>
+</body>
+</html>

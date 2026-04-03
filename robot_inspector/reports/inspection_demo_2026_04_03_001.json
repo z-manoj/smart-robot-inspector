@@ -1,0 +1,176 @@
+{
+  "inspection_id": "demo_2026_04_03_001",
+  "timestamp": {
+    "start": "2026-04-03T18:24:12.169572",
+    "end": "2026-04-03T18:24:12.169600",
+    "generated": "2026-04-03T18:24:12.169613"
+  },
+  "summary": {
+    "total_inspection_points": 2,
+    "waypoints_visited": 4,
+    "overall_status": "FAIL",
+    "total_issues": 5,
+    "issues_by_severity": {
+      "CRITICAL": 2,
+      "HIGH": 1,
+      "MEDIUM": 1,
+      "LOW": 1
+    },
+    "points_passed": 0,
+    "points_failed": 2
+  },
+  "robot_path": [
+    {
+      "x": 0,
+      "y": 0
+    },
+    {
+      "x": 1.5,
+      "y": 2.0
+    },
+    {
+      "x": 3.0,
+      "y": 2.0
+    },
+    {
+      "x": 3.0,
+      "y": 0
+    }
+  ],
+  "inspection_points": [
+    {
+      "waypoint_id": 1,
+      "position": {
+        "x": 1.5,
+        "y": 2.0
+      },
+      "image_analysis": {
+        "objects": [
+          {
+            "name": "Warehouse Shelves",
+            "count": 3,
+            "description": "Three labeled storage shelves (SHELF-01, SHELF-02, SHELF-03) arranged in a row within the warehouse area"
+          },
+          {
+            "name": "Inventory Items - SHELF-01",
+            "count": 4,
+            "description": "Four red inventory items/containers of uniform size on SHELF-01, appearing in normal condition"
+          },
+          {
+            "name": "Inventory Items - SHELF-02",
+            "count": 4,
+            "description": "Four inventory items on SHELF-02, one item (leftmost) appears darker/larger with detected damage"
+          },
+          {
+            "name": "Inventory Items - SHELF-03",
+            "count": 4,
+            "description": "Four red inventory items on SHELF-03, appearing in normal condition with slight color variation"
+          }
+        ],
+        "detected_issues": [
+          {
+            "issue": "Damaged inventory item detected on SHELF-02 - leftmost item appears visually different (darker coloration, enlarged/deformed shape) with 'DAMAGE DETECTED' label flagged by the system",
+            "severity": "HIGH",
+            "location": "SHELF-02, leftmost item (first position from left)",
+            "recommendation": "Immediately quarantine the damaged item from SHELF-02. Inspect the item for structural integrity, content leakage, or contamination. Document the damage type and initiate a root cause analysis. Replace with conforming inventory if available."
+          },
+          {
+            "issue": "Potential color inconsistency on SHELF-03 items - slight variation in shade/hue compared to SHELF-01 items, suggesting possible aging, environmental exposure, or batch variation",
+            "severity": "LOW",
+            "location": "SHELF-03, all items",
+            "recommendation": "Perform a visual spot-check on SHELF-03 items to verify product integrity. Compare batch numbers and storage duration against SHELF-01 items to rule out degradation."
+          },
+          {
+            "issue": "Shelving units positioned partially below ground/floor level, potentially indicating improper shelf placement or floor-level storage risk (moisture, pest exposure)",
+            "severity": "MEDIUM",
+            "location": "All three shelves (SHELF-01, SHELF-02, SHELF-03) - base sections appear to extend into the brown floor area",
+            "recommendation": "Verify that shelving units are properly elevated on pallets or risers to prevent ground-level moisture damage. Ensure compliance with warehouse storage height regulations."
+          }
+        ],
+        "scene_description": "The image depicts an industrial warehouse area with three labeled storage shelves (SHELF-01, SHELF-02, SHELF-03) arranged side by side. Each shelf contains four red inventory items/containers. The automated inspection system has flagged a 'DAMAGE DETECTED' alert on SHELF-02, where the leftmost item exhibits visible deformation and discoloration compared to the other items. SHELF-01 appears in normal condition. SHELF-03 items show minor color variation. The shelving units appear to be partially embedded at floor level, which may pose storage quality concerns. Overall, the warehouse requires immediate attention to the damaged item on SHELF-02 and a review of storage conditions.",
+        "confidence_score": 0.91,
+        "overall_status": "FAIL"
+      }
+    },
+    {
+      "waypoint_id": 2,
+      "position": {
+        "x": 3.0,
+        "y": 2.0
+      },
+      "image_analysis": {
+        "objects": [
+          {
+            "name": "Manufactured Part (Elliptical/Oval Component)",
+            "count": 1,
+            "description": "Light blue elliptical manufactured part labeled PART-12345"
+          },
+          {
+            "name": "Crack/Fracture Line",
+            "count": 1,
+            "description": "Red diagonal line indicating a detected crack running across the lower-left quadrant of the part"
+          },
+          {
+            "name": "Part Identifier Label",
+            "count": 1,
+            "description": "Text label 'PART-12345' displayed on the upper portion of the part"
+          },
+          {
+            "name": "Crack Detection Annotation",
+            "count": 1,
+            "description": "Red text annotation 'CRACK DETECTED' marking the defect location"
+          },
+          {
+            "name": "QC Status Indicator",
+            "count": 1,
+            "description": "Red text 'QC STATUS REJECT' displayed in the lower-right corner of the inspection image"
+          }
+        ],
+        "detected_issues": [
+          {
+            "issue": "Structural crack detected on manufactured part PART-12345",
+            "severity": "CRITICAL",
+            "location": "Lower-left quadrant of the elliptical part, running diagonally from approximately the center-left to the lower-center region",
+            "recommendation": "Immediately reject this part. Do not allow it to proceed to assembly or shipment. Quarantine the part for root cause analysis. Inspect the entire batch from the same production run for similar cracking defects. Investigate potential causes including material fatigue, tooling wear, thermal stress, or process parameter deviations."
+          },
+          {
+            "issue": "QC system has automatically flagged part as REJECT",
+            "severity": "CRITICAL",
+            "location": "Bottom-right corner - QC status indicator",
+            "recommendation": "Confirm and document the automated rejection in the quality management system. Ensure the part is physically segregated and tagged as non-conforming. Generate a Non-Conformance Report (NCR) and initiate corrective action procedures."
+          }
+        ],
+        "scene_description": "This is an automated quality control inspection image of an elliptical/oval manufactured part identified as PART-12345. The inspection system has detected a significant structural crack running diagonally across the lower-left portion of the part. The crack appears to be a surface-level or through-thickness fracture of substantial length, spanning approximately 30-40% of the part's width. The automated QC system has correctly classified this part as REJECT. This is a clear-cut defect that compromises the structural integrity of the component and warrants immediate rejection and batch-level investigation.",
+        "confidence_score": 0.97,
+        "overall_status": "FAIL"
+      }
+    }
+  ],
+  "critical_findings": [
+    {
+      "issue": "Structural crack detected on manufactured part PART-12345",
+      "severity": "CRITICAL",
+      "location": "Lower-left quadrant of the elliptical part, running diagonally from approximately the center-left to the lower-center region",
+      "recommendation": "Immediately reject this part. Do not allow it to proceed to assembly or shipment. Quarantine the part for root cause analysis. Inspect the entire batch from the same production run for similar cracking defects. Investigate potential causes including material fatigue, tooling wear, thermal stress, or process parameter deviations."
+    },
+    {
+      "issue": "QC system has automatically flagged part as REJECT",
+      "severity": "CRITICAL",
+      "location": "Bottom-right corner - QC status indicator",
+      "recommendation": "Confirm and document the automated rejection in the quality management system. Ensure the part is physically segregated and tagged as non-conforming. Generate a Non-Conformance Report (NCR) and initiate corrective action procedures."
+    }
+  ],
+  "high_priority_findings": [
+    {
+      "issue": "Damaged inventory item detected on SHELF-02 - leftmost item appears visually different (darker coloration, enlarged/deformed shape) with 'DAMAGE DETECTED' label flagged by the system",
+      "severity": "HIGH",
+      "location": "SHELF-02, leftmost item (first position from left)",
+      "recommendation": "Immediately quarantine the damaged item from SHELF-02. Inspect the item for structural integrity, content leakage, or contamination. Document the damage type and initiate a root cause analysis. Replace with conforming inventory if available."
+    }
+  ],
+  "recommendations": [
+    "URGENT: Address all critical issues before continuing operations",
+    "Stop and address 2 critical defect(s)",
+    "Schedule maintenance for 1 high-priority issue(s)"
+  ]
+}
