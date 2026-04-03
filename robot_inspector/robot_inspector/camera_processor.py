@@ -1,57 +1,51 @@
 """
-Camera image processor with AWS Bedrock Claude integration.
-Handles image analysis with vision capabilities and defect severity scoring.
+Camera image processor with generic LLM vision analysis.
+Supports multiple backends: AWS Bedrock, OpenRouter, Ollama, Anthropic API.
 """
 
 import json
-import base64
+import re
 import logging
 from typing import Dict, List, Optional
-from io import BytesIO
-from PIL import Image
-import boto3
+
+from .llm_provider import LLMProvider, create_provider
 
 logger = logging.getLogger(__name__)
 
 
 class CameraProcessor:
-    """Process camera images and analyze with Claude via AWS Bedrock."""
+    """Process camera images and analyze with LLM vision models."""
 
-    def __init__(self, region_name: str = "us-east-1", model_id: str = "us.anthropic.claude-opus-4-6-v1"):
+    def __init__(self, provider: LLMProvider = None, **kwargs):
         """
-        Initialize Bedrock client and model configuration.
+        Initialize with an LLM provider.
 
         Args:
-            region_name: AWS region for Bedrock
-            model_id: Bedrock model ID for Claude
+            provider: Pre-configured LLMProvider instance.
+            **kwargs: If provider is None, passed to create_provider().
+                      Supports: provider_name, region_name, model_id, api_key, base_url, model.
+
+        Examples:
+            # Bedrock (default, backward compatible)
+            CameraProcessor(region_name="us-east-1", model_id="us.anthropic.claude-opus-4-6-v1")
+
+            # OpenRouter
+            CameraProcessor(provider_name="openrouter", api_key="sk-...")
+
+            # Local Ollama
+            CameraProcessor(provider_name="openai", base_url="http://localhost:11434/v1", model="llava")
+
+            # Direct Anthropic
+            CameraProcessor(provider_name="anthropic", api_key="sk-ant-...")
+
+            # Pre-built provider
+            CameraProcessor(provider=my_provider)
         """
-        self.bedrock_client = boto3.client("bedrock-runtime", region_name=region_name)
-        self.model_id = model_id
+        if provider:
+            self.provider = provider
+        else:
+            self.provider = create_provider(**kwargs)
         self.analysis_history = []
-
-    def _image_to_base64(self, image_bytes: bytes) -> str:
-        """Convert image bytes to base64 string."""
-        return base64.b64encode(image_bytes).decode("utf-8")
-
-    def _prepare_image_for_claude(self, image_bytes: bytes) -> Dict:
-        """
-        Prepare image in Bedrock Claude-compatible format.
-
-        Args:
-            image_bytes: Raw image bytes
-
-        Returns:
-            Image content dict for Bedrock API
-        """
-        base64_image = self._image_to_base64(image_bytes)
-        return {
-            "image": {
-                "format": "png",
-                "source": {
-                    "bytes": image_bytes,
-                },
-            }
-        }
 
     def process_image_with_claude(
         self,
@@ -60,7 +54,7 @@ class CameraProcessor:
         include_severity: bool = True,
     ) -> Dict:
         """
-        Send image to Claude via Bedrock and get analysis with severity scoring.
+        Send image to LLM for analysis with severity scoring.
 
         Args:
             image_bytes: PNG/JPEG image data
@@ -71,9 +65,6 @@ class CameraProcessor:
             Analysis result dict with objects, issues, severity scores
         """
         try:
-            image_content = self._prepare_image_for_claude(image_bytes)
-
-            # Build analysis prompt
             severity_instruction = ""
             if include_severity:
                 severity_instruction = """
@@ -115,34 +106,15 @@ Respond in JSON format:
     "overall_status": "PASS|REVIEW_REQUIRED|FAIL"
 }}"""
 
-            # Call Bedrock - fix for correct API format
-            content = [image_content, {"text": analysis_prompt}]
-
-            message_response = self.bedrock_client.converse(
-                modelId=self.model_id,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": content,
-                    }
-                ],
-                system=[
-                    {
-                        "text": "You are an expert industrial quality inspector. Analyze images carefully and provide structured, actionable feedback."
-                    }
-                ],
+            response_text = self.provider.send_vision_message(
+                image_bytes=image_bytes,
+                prompt=analysis_prompt,
             )
-
-            # Parse response from Bedrock converse API
-            response_text = message_response["output"]["message"]["content"][0]["text"]
 
             # Extract JSON from response
             try:
-                # Try to parse as pure JSON
                 analysis_result = json.loads(response_text)
             except json.JSONDecodeError:
-                # If direct JSON fails, try to extract JSON from text
-                import re
                 json_match = re.search(r'\{[\s\S]*\}', response_text)
                 if json_match:
                     analysis_result = json.loads(json_match.group())
@@ -156,10 +128,8 @@ Respond in JSON format:
                         "overall_status": "REVIEW_REQUIRED",
                     }
 
-            # Store in history for comparison
             self.analysis_history.append(analysis_result)
-
-            logger.info(f"Image analysis complete. Status: {analysis_result.get('overall_status', 'UNKNOWN')}")
+            logger.info(f"Analysis complete. Status: {analysis_result.get('overall_status', 'UNKNOWN')}")
             return analysis_result
 
         except Exception as e:
@@ -174,16 +144,7 @@ Respond in JSON format:
             }
 
     def compare_analyses(self, analysis1: Dict, analysis2: Dict) -> Dict:
-        """
-        Compare two inspection analyses to detect changes.
-
-        Args:
-            analysis1: First analysis result
-            analysis2: Second analysis result (usually later)
-
-        Returns:
-            Comparison report with deltas
-        """
+        """Compare two inspection analyses to detect changes."""
         comparison = {
             "timestamp_order": "first -> second",
             "objects_changed": [],
@@ -192,7 +153,6 @@ Respond in JSON format:
             "severity_changes": [],
         }
 
-        # Compare objects
         objs1 = {obj["name"]: obj["count"] for obj in analysis1.get("objects", [])}
         objs2 = {obj["name"]: obj["count"] for obj in analysis2.get("objects", [])}
 
@@ -201,16 +161,11 @@ Respond in JSON format:
             count2 = objs2.get(obj_name, 0)
             if count1 != count2:
                 comparison["objects_changed"].append({
-                    "object": obj_name,
-                    "before": count1,
-                    "after": count2,
-                    "delta": count2 - count1,
+                    "object": obj_name, "before": count1, "after": count2, "delta": count2 - count1,
                 })
 
-        # Compare issues
         issues1_set = {issue["issue"] for issue in analysis1.get("detected_issues", [])}
         issues2_set = {issue["issue"] for issue in analysis2.get("detected_issues", [])}
-
         comparison["new_issues"] = list(issues2_set - issues1_set)
         comparison["resolved_issues"] = list(issues1_set - issues2_set)
 

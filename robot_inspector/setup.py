@@ -3,7 +3,7 @@ from pathlib import Path
 
 setup(
     name="robot_inspector",
-    version="0.3.0",
+    version="0.4.0",
     packages=find_packages(),
     install_requires=[
         "boto3>=1.28.0",
@@ -11,6 +11,7 @@ setup(
         "opencv-python>=4.8.0",
         "pyyaml>=6.0",
         "numpy>=1.24.0",
+        "httpx>=0.24.0",
     ],
     extras_require={
         'ros2': [

@@ -19,6 +19,7 @@ import cv2
 HAS_CV_BRIDGE = False  # Disabled - cv_bridge incompatible with NumPy 2.x
 
 from .camera_processor import CameraProcessor
+from .llm_provider import create_provider
 from .report_generator import ReportGenerator
 from . import utils
 
@@ -47,6 +48,7 @@ class InspectorNode(Node):
         super().__init__('robot_inspector')
 
         # Declare parameters
+        self.declare_parameter('llm_provider', 'bedrock')
         self.declare_parameter('bedrock_region', 'us-east-1')
         self.declare_parameter('model_id', 'us.anthropic.claude-opus-4-6-v1')
         self.declare_parameter('image_topic', '/camera/image_raw')
@@ -58,6 +60,7 @@ class InspectorNode(Node):
         self.declare_parameter('enable_visualization', True)
 
         # Get parameters
+        self.llm_provider_name = self.get_parameter('llm_provider').value
         self.bedrock_region = self.get_parameter('bedrock_region').value
         self.model_id = self.get_parameter('model_id').value
         image_topic = self.get_parameter('image_topic').value
@@ -70,13 +73,15 @@ class InspectorNode(Node):
 
         # Initialize processors
         try:
-            self.processor = CameraProcessor(
+            provider = create_provider(
+                provider_name=self.llm_provider_name,
                 region_name=self.bedrock_region,
-                model_id=self.model_id
+                model_id=self.model_id,
             )
+            self.processor = CameraProcessor(provider=provider)
             self.report_gen = ReportGenerator(output_dir=self.report_output_dir)
             self.get_logger().info(
-                f"✓ Initialized with Bedrock region: {self.bedrock_region}, "
+                f"✓ Initialized with LLM provider: {self.llm_provider_name}, "
                 f"model: {self.model_id}"
             )
         except Exception as e:

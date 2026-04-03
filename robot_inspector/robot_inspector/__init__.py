@@ -1,6 +1,7 @@
 """Robot Inspector - ROS2 package for intelligent robot inspection with Claude."""
 
 from .camera_processor import CameraProcessor
+from .llm_provider import LLMProvider, create_provider
 from .report_generator import ReportGenerator
 from .inspection_message import AnalysisMessageConverter, InspectionSummary
 from .utils import (
@@ -21,9 +22,11 @@ try:
 except ImportError:
     __all_ros2__ = []
 
-__version__ = "0.2.0"
+__version__ = "0.4.0"
 __all__ = [
     "CameraProcessor",
+    "LLMProvider",
+    "create_provider",
     "ReportGenerator",
     "AnalysisMessageConverter",
     "InspectionSummary",
