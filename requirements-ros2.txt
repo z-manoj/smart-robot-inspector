@@ -1,0 +1,15 @@
+# Smart Robot Inspector - ROS2 Dependencies
+# Install with: pip install -r requirements-ros2.txt
+# (After installing ROS2 from https://docs.ros.org/en/humble/Installation.html)
+
+# Note: rclpy, sensor_msgs, etc. are provided by ROS2 installation
+# These are for development environments where you might install ROS2 via pip
+
+rclpy>=0.10.0
+sensor-msgs>=0.0.5
+cv-bridge>=0.5.0
+image-transport>=0.1.0
+std-msgs>=0.0.5
+
+# Optional visualization
+# rviz2>=0.10.0
