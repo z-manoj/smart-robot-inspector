@@ -52,15 +52,15 @@ class GazeboDemoNode(Node):
 
         # Waypoints for inspection
         self.waypoints = [
-            {'id': 1, 'x': 2.0, 'y': -1.0, 'name': 'Shelf 1', 'description': 'First shelf'},
-            {'id': 2, 'x': 2.0, 'y': 1.25, 'name': 'Shelf 2', 'description': 'Second shelf with damage'},
-            {'id': 3, 'x': 2.0, 'y': 3.5, 'name': 'Shelf 3', 'description': 'Third shelf'},
+            {'id': 1, 'x': 1.0, 'y': 0.0, 'name': 'Shelf 1', 'description': 'Normal shelf - red/green/blue items'},
+            {'id': 2, 'x': 1.0, 'y': 3.0, 'name': 'Shelf 2', 'description': 'Damaged shelf - tilted/fallen items'},
+            {'id': 3, 'x': 1.0, 'y': 6.0, 'name': 'Shelf 3', 'description': 'Normal shelf - yellow/cyan/purple items'},
         ]
 
         # Configuration
         self.movement_speed = 0.3  # m/s
         self.angular_speed = 0.5   # rad/s
-        self.inspection_duration = 5  # seconds
+        self.inspection_duration = 15  # seconds - wait for Bedrock analysis
         self.position_tolerance = 0.1  # meters
         self.angle_tolerance = 0.1    # radians
 
@@ -146,11 +146,28 @@ class GazeboDemoNode(Node):
                 # Move forward
                 self.publish_velocity(self.movement_speed, 0.0)
 
-            time.sleep(0.1)
+            # Process callbacks so odom_callback fires
+            rclpy.spin_once(self, timeout_sec=0.1)
 
         self.get_logger().warn(f"Timeout reaching {waypoint_name}")
         self.stop()
         return False
+
+    def face_direction(self, target_yaw: float):
+        """Turn robot to face a specific direction (yaw angle in radians)."""
+        start_time = time.time()
+        while time.time() - start_time < 10:
+            angle_diff = target_yaw - self.current_yaw
+            angle_diff = math.atan2(math.sin(angle_diff), math.cos(angle_diff))
+
+            if abs(angle_diff) < self.angle_tolerance:
+                self.stop()
+                rclpy.spin_once(self, timeout_sec=0.1)
+                return
+            angular_z = self.angular_speed if angle_diff > 0 else -self.angular_speed
+            self.publish_velocity(0.0, angular_z)
+            rclpy.spin_once(self, timeout_sec=0.1)
+        self.stop()
 
     def inspect_waypoint(self, waypoint: dict) -> dict:
         """
@@ -167,6 +184,10 @@ class GazeboDemoNode(Node):
         # Move to waypoint
         self.move_to_waypoint(waypoint['x'], waypoint['y'], waypoint['name'])
 
+        # Turn to face the shelf (shelves are at x=3, robot at x=1, so face +x = yaw 0)
+        self.get_logger().info(f"Turning to face {waypoint['name']}...")
+        self.face_direction(0.0)  # Face +x direction
+
         # Wait for inspection and image analysis
         self.latest_analysis = None
         start_time = time.time()
@@ -174,7 +195,7 @@ class GazeboDemoNode(Node):
         while time.time() - start_time < self.inspection_duration:
             if self.latest_analysis:
                 break
-            time.sleep(0.5)
+            rclpy.spin_once(self, timeout_sec=0.5)
 
         self.inspection_count += 1
 

@@ -14,7 +14,9 @@ import logging
 from datetime import datetime
 from threading import Thread
 from collections import deque
-from cv_bridge import CvBridge
+import numpy as np
+import cv2
+HAS_CV_BRIDGE = False  # Disabled - cv_bridge incompatible with NumPy 2.x
 
 from .camera_processor import CameraProcessor
 from .report_generator import ReportGenerator
@@ -52,7 +54,7 @@ class InspectorNode(Node):
         self.declare_parameter('report_output_dir', './reports')
         self.declare_parameter('inspection_interval_ms', 1000)
         self.declare_parameter('max_queue_size', 10)
-        self.declare_parameter('confidence_threshold', 0.70)
+        self.declare_parameter('confidence_threshold', 0.30)
         self.declare_parameter('enable_visualization', True)
 
         # Get parameters
@@ -82,7 +84,11 @@ class InspectorNode(Node):
             raise
 
         # Image handling
-        self.cv_bridge = CvBridge()
+        if HAS_CV_BRIDGE:
+            self.cv_bridge = CvBridge()
+        else:
+            self.cv_bridge = None
+            self.get_logger().warn("cv_bridge not available, using manual image conversion")
         self.image_queue = deque(maxlen=self.max_queue_size)
 
         # ROS2 subscribers and publishers
@@ -131,7 +137,14 @@ class InspectorNode(Node):
         """
         try:
             # Convert ROS image to OpenCV format
-            cv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            if self.cv_bridge:
+                cv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            else:
+                # Manual conversion: ROS Image -> numpy -> OpenCV
+                img_array = np.frombuffer(msg.data, dtype=np.uint8)
+                cv_image = img_array.reshape((msg.height, msg.width, 3))
+                if msg.encoding == 'rgb8':
+                    cv_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2BGR)
 
             # Convert to PNG bytes
             image_bytes = utils.convert_cv_to_png(cv_image)
@@ -160,6 +173,7 @@ class InspectorNode(Node):
             f"Processing loop started. Interval: {self.inspection_interval}s"
         )
 
+        import time as _time
         while rclpy.ok():
             try:
                 # Process one image from queue
@@ -167,7 +181,7 @@ class InspectorNode(Node):
                     image_data = self.image_queue.popleft()
                     self.analyze_and_publish(image_data)
 
-                rclpy.spin_once(self, timeout_sec=self.inspection_interval)
+                _time.sleep(self.inspection_interval)
 
             except Exception as e:
                 self.get_logger().error(f"Error in processing loop: {e}")
@@ -185,7 +199,7 @@ class InspectorNode(Node):
             # Analyze with Claude
             analysis = self.processor.process_image_with_claude(
                 image_data['data'],
-                context="ROS2 robot inspection scene",
+                context="Warehouse shelf inspection. You are a robot inspector examining products on warehouse shelves. Look for: damaged items, fallen/tilted products, missing items, stains, structural damage to shelves, improper stacking. The colored boxes are products/packages stored on brown wooden shelves.",
                 include_severity=True
             )
 

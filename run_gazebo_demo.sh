@@ -42,11 +42,25 @@ else
     echo "Running components individually..."
     echo ""
 
-    # Start Gazebo
+    # Start Gazebo (try both old and new command names)
     echo "Starting Gazebo..."
-    gazebo --verbose "$SCRIPT_DIR/robot_inspector/worlds/warehouse.world" &
-    GAZEBO_PID=$!
+    # Set Gazebo model path so it can find our robot model
+    export GZ_SIM_RESOURCE_PATH="$SCRIPT_DIR/robot_inspector/models:$GZ_SIM_RESOURCE_PATH"
+    if command -v gz &> /dev/null; then
+        # Start server with auto-run (-r), then GUI separately
+        gz sim -s -r "$SCRIPT_DIR/robot_inspector/worlds/warehouse.world" &
+        SERVER_PID=$!
+        sleep 3
+        gz sim -g &
+        GUI_PID=$!
+    else
+        echo "❌ Gazebo not found in PATH"
+        echo "Install from: https://gazebosim.org/docs/harmonic/install_ubuntu/"
+        exit 1
+    fi
+    GAZEBO_PID=$SERVER_PID
     sleep 3
+    echo "✅ Gazebo started with warehouse world and robot"
 
     # Start ROS2 bridge
     echo "Starting ROS2 bridge..."
@@ -59,8 +73,13 @@ else
 
     # Start inspector node
     echo "Starting inspector node..."
-    ros2 run robot_inspector inspector_node &
+    export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+    export AWS_PROFILE=${AWS_PROFILE:-claude}
+    export AWS_REGION=${AWS_REGION:-us-east-1}
+    cd "$SCRIPT_DIR/robot_inspector"
+    python3 -m robot_inspector.ros_node &
     NODE_PID=$!
+    cd "$SCRIPT_DIR"
     sleep 2
 
     # Start RViz
@@ -74,5 +93,5 @@ else
     python3 "$SCRIPT_DIR/robot_inspector/scripts/run_gazebo_demo.py"
 
     # Cleanup
-    kill $NODE_PID $BRIDGE_PID $RVIZ_PID $GAZEBO_PID 2>/dev/null || true
+    kill $NODE_PID $BRIDGE_PID $RVIZ_PID $GAZEBO_PID $GUI_PID 2>/dev/null || true
 fi

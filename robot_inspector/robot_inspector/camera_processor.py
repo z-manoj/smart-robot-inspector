@@ -85,13 +85,15 @@ For each detected issue, provide a severity level:
 
 Return severity as a field in each issue object."""
 
-            analysis_prompt = f"""You are an industrial quality inspector analyzing a {context}.
+            analysis_prompt = f"""You are an industrial warehouse quality inspector. Context: {context}
+
+This image is from a robot camera inspecting warehouse shelves. The colored boxes/cubes are products/packages stored on wooden shelf racks.
 
 Analyze this image and provide:
-1. List of all visible objects/items with counts
-2. Any detected anomalies, defects, or quality issues
+1. List of all visible products/items on the shelf with counts
+2. Any detected defects: damaged products, fallen/tilted items, missing inventory, stains, structural shelf damage
 3. Confidence score (0-1) for your analysis
-4. Recommended actions
+4. Recommended maintenance actions
 
 {severity_instruction}
 
