@@ -288,16 +288,60 @@ Check Bedrock documentation for current model IDs.
 }
 ```
 
+## Phase 3: Gazebo Simulation
+
+Smart Robot Inspector now includes **full Gazebo simulation** with autonomous warehouse inspection.
+
+### Quick Start
+
+```bash
+# Launch complete system with visualization and automated demo
+ros2 launch robot_inspector gazebo_warehouse_with_viz.launch.py
+
+# This runs:
+# - Gazebo warehouse with 3 shelves
+# - Mobile robot with differential drive
+# - Camera publishing at 30Hz
+# - Inspector node analyzing in real-time
+# - RViz visualization
+# - Automated demo visiting all waypoints
+```
+
+### What Happens
+
+1. Robot navigates to 3 shelves (Shelf 1, Shelf 2 with damage, Shelf 3)
+2. Captures images at each location
+3. Claude analyzes images for defects via Bedrock
+4. Generates comprehensive JSON + Markdown reports
+5. Reports saved to `gazebo_demo_reports/`
+
+### Key Files
+
+- **worlds/warehouse.world** - Gazebo world with shelves and items
+- **models/mobile_robot/model.sdf** - 2-wheel differential drive robot
+- **scripts/run_gazebo_demo.py** - Orchestration and navigation
+- **config/gazebo_params.yaml** - Simulation parameters
+- **launch/gazebo_warehouse_with_viz.launch.py** - Complete system launch
+
+### Full Documentation
+
+See [docs/GAZEBO_SETUP.md](docs/GAZEBO_SETUP.md) for:
+- Detailed setup instructions
+- Launch argument reference
+- System components explained
+- Troubleshooting guide
+- Performance tuning
+- Custom world creation
+
 ## Future Enhancements
 
-- [ ] ROS2 node integration for real robot communication
-- [ ] Gazebo world with realistic warehouse/factory scenes
 - [ ] Video recording of inspection playback
-- [ ] Real-time RViz visualization
 - [ ] Database integration for inspection history
 - [ ] Web dashboard for report viewing
 - [ ] Integration with MQTT for IoT systems
 - [ ] Defect tracking and trending analysis
+- [ ] Multiple robot swarm coordination
+- [ ] Nav2 autonomous path planning integration
 
 ## File Structure
 
@@ -391,4 +435,9 @@ For issues or questions:
 
 **Created**: April 2026  
 **Status**: Active Development  
-**Version**: 0.1.0
+**Version**: 0.3.0  
+
+### Phase Progression
+- **Phase 1** ✅ - Core analysis system (CameraProcessor, ReportGenerator)
+- **Phase 2** ✅ - ROS2 integration (InspectorNode, message conversion)
+- **Phase 3** ✅ - Gazebo simulation (warehouse world, mobile robot, demo)

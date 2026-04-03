@@ -3,7 +3,7 @@ from pathlib import Path
 
 setup(
     name="robot_inspector",
-    version="0.2.0",
+    version="0.3.0",
     packages=find_packages(),
     install_requires=[
         "boto3>=1.28.0",
@@ -29,11 +29,26 @@ setup(
         'console_scripts': [
             'inspector_node=robot_inspector.ros_node:main',
             'run_inspector=robot_inspector.scripts.run_ros_node:main',
+            'run_gazebo_demo=robot_inspector.scripts.run_gazebo_demo:main',
         ],
     },
     data_files=[
-        ('share/robot_inspector/launch', ['launch/inspector.launch.py']),
-        ('share/robot_inspector/config', ['config/inspector_config.yaml']),
+        ('share/robot_inspector/launch', [
+            'launch/inspector.launch.py',
+            'launch/gazebo_warehouse.launch.py',
+            'launch/gazebo_warehouse_with_viz.launch.py',
+        ]),
+        ('share/robot_inspector/config', [
+            'config/inspector_config.yaml',
+            'config/gazebo_params.yaml',
+            'config/gazebo_warehouse.rviz',
+        ]),
+        ('share/robot_inspector/worlds', [
+            'worlds/warehouse.world',
+        ]),
+        ('share/robot_inspector/models/mobile_robot', [
+            'models/mobile_robot/model.sdf',
+        ]),
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
